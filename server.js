@@ -1,34 +1,46 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
+
 var app = express();
 var PORT = process.env.PORT || 3000; // process.env.PORT - heroku port
-var todos = [{
-	id:1,
-	description: 'Do evening runing',
-	completed: false
-}, {
-	id:2,
-	description: 'Watch tutorials',
-	completed: false
-}, {
-	id:3,
-	description:'Eat my Syntha',
-	completed: true
-}];
+var todos = [];
+var idCounter = 0
 
+//add bodyParser as middleware to app
+app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
 	res.send('Todo api Root is working');
 });
 
 
-//GET /todos
+//GET all todos  /todos
 app.get('/todos', function (req, res) {
-	res.json(todos);//response ase json no need to stringify
+	res.json(todos);//response as json no need to stringify
 });
 
 
+//POST todo
+app.post('/todos', function (req, res) {
 
-//GET /todos/:id
+	var body = req.body//Body requested
+	console.log('requested body description:' + body.description);
+
+	idCounter++;
+
+	var newTodo = {
+		'id': idCounter,
+		'description': body.description,
+		'completed': body.completed
+	}
+	todos.push(newTodo);
+
+	res.json(body);
+});
+
+
+//GET todos by id   /todos/:id
 app.get('/todos/:id', function (req, res) {
 
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
