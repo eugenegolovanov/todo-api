@@ -64,7 +64,28 @@ app.get('/todos/:id', function (req, res) {
 	// res.send('Requested id with value: ' + req.params.id);//req.params.id
 });
 
+//DELETE todos by id   /todos/:id
+app.delete('/todos/:id' , function (req, res) {
+	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
+	//get requested todo object (refactored with underscore library)
+	var todoToDelete = _.findWhere(todos, {id: requestedId});
+
+	console.log('---------------------OLD TODOS:--------------------------------');
+	console.log(todos);
+	console.log('----------------------NEW TODOS:-------------------------------');
+	todos = _.without(todos, todoToDelete);
+	console.log(todos);
+	console.log('----------------------------------------------------------------');
+
+	if (todoToDelete) {
+		res.json(todoToDelete);
+	} else {
+		res.status(404).json({"error":"no todo with matced id"});
+	}
+
+
+});
 
 
 
