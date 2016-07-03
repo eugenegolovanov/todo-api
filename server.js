@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 
 var app = express();
@@ -24,17 +25,24 @@ app.get('/todos', function (req, res) {
 //POST todo
 app.post('/todos', function (req, res) {
 
-	var body = req.body//Body requested
-	console.log('requested body description:' + body.description);
+	//req.body - Body requested
+	//_.pick - filter body with 'description' and 'completed' properties
+	var body = _.pick(req.body, 'description', 'completed');
+	console.log('Body requested:');
+	console.log(body);
 
+	//Check body if properties are valid types
+	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+		return res.status(400).res();//400 - user provided bad data
+	}
 	idCounter++;
 
-	var newTodo = {
-		'id': idCounter,
-		'description': body.description,
-		'completed': body.completed
-	}
-	todos.push(newTodo);
+	//Trim spaces if body has some
+	body.description = body.description.trim()
+
+	body.id = idCounter;
+
+	todos.push(body);
 
 	res.json(body);
 });
@@ -44,17 +52,10 @@ app.post('/todos', function (req, res) {
 app.get('/todos/:id', function (req, res) {
 
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
-	var matchedTodo;
-	// for (var i = 0; i < todos.length; i++) {
-	// 	if (todos[i].id === requestedId) {
-	// 		matchedTodo = todos[i];
-	// 	}
-	// }
-	todos.forEach(function (todo) {
-		if (todo.id === requestedId) {
-			matchedTodo = todo;
-		}
-	});
+
+	//get requested todo object (refactored with underscore library)
+	var matchedTodo = _.findWhere(todos, {id: requestedId});
+
 	if (matchedTodo) {
 		res.json(matchedTodo);
 	} else {
