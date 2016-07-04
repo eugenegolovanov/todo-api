@@ -83,9 +83,55 @@ app.delete('/todos/:id' , function (req, res) {
 	} else {
 		res.status(404).json({"error":"no todo with matced id"});
 	}
+});
 
+
+
+
+//PUT todos by id /todos/:id,  (update todos)
+app.put('/todos/:id', function (req, res) {
+	//req.body - Body requested
+	//_.pick - filter body with 'description' and 'completed' properties
+	var body = _.pick(req.body, 'description', 'completed');
+	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
+	var matchedTodo = _.findWhere(todos, {id: requestedId});
+
+
+	if (!matchedTodo) {
+		res.status(404).send();
+	} 
+
+	var validAttributes = {};
+
+	//completed attribute
+	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+		//success, user provided attribute and it is boolean
+		validAttributes.completed = body.completed;
+
+	} else if (body.hasOwnProperty('completed')) {
+		//error, user provided something inside 'completed' but it is not boolean
+		res.status(400).send();
+	}
+
+	//description attribute
+	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+		//success, user provided attribute and it is string
+		validAttributes.description = body.description.trim();
+
+	} else if (body.hasOwnProperty('description')) {
+		//error, user provided something inside 'description' but it is not string
+		res.status(400).send();
+	}
+
+	//IF WE HERE everything went successfully
+
+	// matchedTodo.completed = validAttributes.completed;
+	// matchedTodo.description = validAttributes.description;
+	_.extend(matchedTodo, validAttributes);//underscore refactor
+	res.json(matchedTodo);
 
 });
+
 
 
 
