@@ -37,14 +37,16 @@ app.get('/todos', function (req, res) {
 	var queryParams = req.query;//req.query give us string not boolean,
 	var filteredTodos = todos;
 
-
+	//Work With q Query    /todos?completed=false
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
 	 	 filteredTodos = _.where(todos, {completed: false});//where finds all matching items not just the first 
 	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
 	     filteredTodos = _.where(todos, {completed: true});//where finds all matching items not just the first 
 	}
 
-	if (queryParams.hasOwnProperty('q') && filteredTodos.indexOf(queryParams.q)) {
+
+	//Work With q Query    /todos?q=something
+	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 
 		console.log('--------------------------------------------------------------------');
 		console.log('Original filtered todos:');
@@ -55,15 +57,11 @@ app.get('/todos', function (req, res) {
 		//Filter all todos and find if description containts queryParams.q
 		var filteredTodos = _.filter(filteredTodos, function(todo){ 
 
-			var origArrayOfWords = todo.description.split(" ");//Make description as array of words
-			var arrayOfWords = [];
+			// var arrayOfWords = todo.description.split(" ");//Make description as array of words
+			// return (arrayOfWords.indexOf(queryParams.q)) > -1;//if -1 queryParams.q doesn't exists  
 
-			//make lowercase string
-			origArrayOfWords.forEach(function(word) {
-			    arrayOfWords.push(word.toLowerCase());
-			});
-
-			return (arrayOfWords.indexOf(queryParams.q)) > -1;//if -1 queryParams.q doesn't exists  
+			//If 'todo.desctiption' contains  'queryParams.q'
+			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;//REFACTORING
 
 		});
 		
