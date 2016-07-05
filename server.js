@@ -5,7 +5,16 @@ var _ = require('underscore');
 
 var app = express();
 var PORT = process.env.PORT || 3000; // process.env.PORT - heroku port
-var todos = [];
+var todos = [ {
+	description:'Watch tutorials',
+	completed: true
+},{
+	description:'Walk the dog',
+	completed: true
+}, {
+	description:'Make haircut',
+	completed:false
+}];
 var idCounter = 0
 
 //add bodyParser as middleware to app
@@ -16,10 +25,78 @@ app.get('/', function (req, res) {
 });
 
 
-//GET all todos  /todos
+// //GET all todos  /todos
+// app.get('/todos', function (req, res) {
+// 	res.json(todos);//response as json no need to stringify
+// });
+
+
+//GET all todos or filtered  /todos?completed=false&q=haircut
 app.get('/todos', function (req, res) {
-	res.json(todos);//response as json no need to stringify
+
+	var queryParams = req.query;//req.query give us string not boolean,
+	var filteredTodos = todos;
+
+
+	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+	 	 filteredTodos = _.where(todos, {completed: false});//where finds all matching items not just the first 
+	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+	     filteredTodos = _.where(todos, {completed: true});//where finds all matching items not just the first 
+	}
+
+	if (queryParams.hasOwnProperty('q') && filteredTodos.indexOf(queryParams.q)) {
+
+		console.log('--------------------------------------------------------------------');
+		console.log('Original filtered todos:');
+		console.log(filteredTodos);
+		console.log('--------------------------------------------------------------------');
+
+
+		//Filter all todos and find if description containts queryParams.q
+		var filteredTodos = _.filter(filteredTodos, function(todo){ 
+
+			var origArrayOfWords = todo.description.split(" ");//Make description as array of words
+			var arrayOfWords = [];
+
+			//make lowercase string
+			origArrayOfWords.forEach(function(word) {
+			    arrayOfWords.push(word.toLowerCase());
+			});
+
+			return (arrayOfWords.indexOf(queryParams.q)) > -1;//if -1 queryParams.q doesn't exists  
+
+		});
+		
+
+
+
+		console.log('--------------------------------------------------------------------');
+		console.log('QUERY:');
+		console.log(queryParams.q);
+
+		console.log('FILTERED WITH QUERY:');
+		console.log(filteredTodos);
+		console.log('--------------------------------------------------------------------');
+
+
+	}
+
+	// console.log('--------------------------------------------------------------------');
+	// console.log('filtered todos:');
+	// console.log(filteredTodos);
+	// console.log('--------------------------------------------------------------------');
+
+
+	// debugger;
+
+
+	res.json(filteredTodos);//response as json no need to stringify
 });
+
+
+
+
+
 
 
 //POST todo
@@ -54,7 +131,7 @@ app.get('/todos/:id', function (req, res) {
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
 	//get requested todo object (refactored with underscore library)
-	var matchedTodo = _.findWhere(todos, {id: requestedId});
+	var matchedTodo = _.findWhere(todos, {id: requestedId});//findWhere finds matching items 
 
 	if (matchedTodo) {
 		res.json(matchedTodo);
@@ -127,7 +204,7 @@ app.put('/todos/:id', function (req, res) {
 
 	// matchedTodo.completed = validAttributes.completed;
 	// matchedTodo.description = validAttributes.description;
-	_.extend(matchedTodo, validAttributes);//underscore refactor
+	_.extend(matchedTodo, validAttributes);//underscore refactor, copy properties _.extend(destination, *sources)
 	res.json(matchedTodo);
 
 });

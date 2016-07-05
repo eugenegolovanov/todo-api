@@ -4,3 +4,12 @@ npm install express@4.13.3 --save
 
 //body parser
 npm install body-parser@1.13.3 --save
+
+
+//DEBUG, works if only 'debugger;' command exists
+node debug variable-playground.js
+
+cont //-continue command while debugging
+repl //-enter debug repl, we can type variables in console
+kill //-exit from programm
+quit //-completely exit from debugger
