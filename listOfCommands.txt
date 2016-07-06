@@ -13,3 +13,10 @@ cont //-continue command while debugging
 repl //-enter debug repl, we can type variables in console
 kill //-exit from programm
 quit //-completely exit from debugger
+
+
+//Sequelize install
+npm install sequelize@3.5.1 --save
+
+//sqlite3
+npm install sqlite3 --save
