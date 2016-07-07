@@ -1,20 +1,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
-
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000; // process.env.PORT - heroku port
-var todos = [ {
-	description:'Watch tutorials',
-	completed: true
-},{
-	description:'Walk the dog',
-	completed: true
-}, {
-	description:'Make haircut',
-	completed:false
-}];
+var todos = [];
 var idCounter = 0
 
 //add bodyParser as middleware to app
@@ -100,26 +91,65 @@ app.get('/todos', function (req, res) {
 //POST todo
 app.post('/todos', function (req, res) {
 
+	// //req.body - Body requested
+	// //_.pick - filter body with 'description' and 'completed' properties
+	// var body = _.pick(req.body, 'description', 'completed');
+	// console.log('Body requested:');
+	// console.log(body);
+
+	// //Check body if properties are valid types
+	// if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+	// 	return res.status(400).res();//400 - user provided bad data
+	// }
+	// idCounter++;
+
+	// //Trim spaces if body has some
+	// body.description = body.description.trim()
+
+	// body.id = idCounter;
+
+	// todos.push(body);
+
+	// res.json(body);
+
+
+////////////WITH DATABASE REFACTOR////////////////
 	//req.body - Body requested
 	//_.pick - filter body with 'description' and 'completed' properties
 	var body = _.pick(req.body, 'description', 'completed');
-	console.log('Body requested:');
-	console.log(body);
 
-	//Check body if properties are valid types
-	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-		return res.status(400).res();//400 - user provided bad data
-	}
-	idCounter++;
+	db.todo.create(body).then(function (todo) {
+		res.json(todo.toJSON())
+	}, function (e) {
+		res.status(400).json(e);
+	});
 
-	//Trim spaces if body has some
-	body.description = body.description.trim()
 
-	body.id = idCounter;
+	// //Check body if properties are valid types
+	// if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+	// 	return res.status(400).res();//400 - user provided bad data
+	// }
 
-	todos.push(body);
+	// //Trim spaces if body has some
+	// body.description = body.description.trim()
 
-	res.json(body);
+	// //Creating todo and saving to SQLITE
+	// db.todo.create({
+	// 	description: body.description.trim()
+	// }).then( function (todo) {
+
+	// 	// res.(todo.toJSON());
+	// 	 res.status(200).json(body);
+	// }).catch(function (e) {
+	// 	res.status(400).json(e);
+	// });
+
+
+
+
+
+
+
 });
 
 
@@ -209,7 +239,11 @@ app.put('/todos/:id', function (req, res) {
 
 
 
-
-app.listen(PORT, function () {
-	console.log('Listening port: ' + PORT);
+//Creating database before starting server
+db.sequelize.sync().then(function () {
+	app.listen(PORT, function () {
+		console.log('Listening port: ' + PORT);
+	});
 });
+
+

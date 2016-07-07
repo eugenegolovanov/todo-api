@@ -23,8 +23,6 @@ var Todo = sequelize.define('todo' ,{
 
 
 
-
-
 //SAVE TO DATABASE
 sequelize.sync({force:true}).then(function () {//{force:true} - delete previous tables and creates new ones
 	console.log('Everything is synched');
