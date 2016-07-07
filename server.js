@@ -57,8 +57,6 @@ app.get('/todos', function (req, res) {
 		});
 		
 
-
-
 		console.log('--------------------------------------------------------------------');
 		console.log('QUERY:');
 		console.log(queryParams.q);
@@ -69,15 +67,6 @@ app.get('/todos', function (req, res) {
 
 
 	}
-
-	// console.log('--------------------------------------------------------------------');
-	// console.log('filtered todos:');
-	// console.log(filteredTodos);
-	// console.log('--------------------------------------------------------------------');
-
-
-	// debugger;
-
 
 	res.json(filteredTodos);//response as json no need to stringify
 });
@@ -124,50 +113,45 @@ app.post('/todos', function (req, res) {
 		res.status(400).json(e);
 	});
 
-
-	// //Check body if properties are valid types
-	// if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-	// 	return res.status(400).res();//400 - user provided bad data
-	// }
-
-	// //Trim spaces if body has some
-	// body.description = body.description.trim()
-
-	// //Creating todo and saving to SQLITE
-	// db.todo.create({
-	// 	description: body.description.trim()
-	// }).then( function (todo) {
-
-	// 	// res.(todo.toJSON());
-	// 	 res.status(200).json(body);
-	// }).catch(function (e) {
-	// 	res.status(400).json(e);
-	// });
-
-
-
-
-
-
-
 });
+
+
 
 
 //GET todos by id   /todos/:id
 app.get('/todos/:id', function (req, res) {
 
+	// var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
+
+	// //get requested todo object (refactored with underscore library)
+	// var matchedTodo = _.findWhere(todos, {id: requestedId});//findWhere finds matching items 
+
+	// if (matchedTodo) {
+	// 	res.json(matchedTodo);
+	// } else {
+	// 	res.status(404).send();
+	// }
+
+////////////WITH DATABASE REFACTOR////////////////
+
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
-	//get requested todo object (refactored with underscore library)
-	var matchedTodo = _.findWhere(todos, {id: requestedId});//findWhere finds matching items 
+		//FETCH FROM SQLITE
+		db.todo.findById(requestedId).then(function (todo) {
+			if (!!todo) {
+				res.json(todo.toJSON());
+			} else {
+				res.status(404).send();
+			}
+		}, function (e) {
+			res.status(500).send();//500 status - server error
+		});
 
-	if (matchedTodo) {
-		res.json(matchedTodo);
-	} else {
-		res.status(404).send();
-	}
-	// res.send('Requested id with value: ' + req.params.id);//req.params.id
 });
+
+
+
+
 
 //DELETE todos by id   /todos/:id
 app.delete('/todos/:id' , function (req, res) {
