@@ -20,3 +20,15 @@ npm install sequelize@3.5.1 --save
 
 //sqlite3
 npm install sqlite3 --save
+
+
+
+/////////to install sqlite on heroku///////////
+heroku addons:create heroku-postgresql:hobby-dev
+
+//database wait to be ready
+heroku pg:wait
+
+
+//postgress
+npm install pg@4.4.1 --save
