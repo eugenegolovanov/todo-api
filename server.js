@@ -193,23 +193,48 @@ app.get('/todos/:id', function (req, res) {
 
 //DELETE todos by id   /todos/:id
 app.delete('/todos/:id' , function (req, res) {
+	// var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
+
+	// //get requested todo object (refactored with underscore library)
+	// var todoToDelete = _.findWhere(todos, {id: requestedId});
+
+	// console.log('---------------------OLD TODOS:--------------------------------');
+	// console.log(todos);
+	// console.log('----------------------NEW TODOS:-------------------------------');
+	// todos = _.without(todos, todoToDelete);
+	// console.log(todos);
+	// console.log('----------------------------------------------------------------');
+
+	// if (todoToDelete) {
+	// 	res.json(todoToDelete);
+	// } else {
+	// 	res.status(404).json({"error":"no todo with matced id"});
+	// }
+
+
+
+////////////WITH DATABASE REFACTOR////////////////
+
+
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
-	//get requested todo object (refactored with underscore library)
-	var todoToDelete = _.findWhere(todos, {id: requestedId});
+	//DELETE From SQLite
+	db.todo.destroy({
+		where: {
+			id: requestedId
+		}
+	}).then(function (rowSelected) {
+		if (rowSelected === 0) {
+			res.status(404).json({error: 'No todo with id'});
+		} else {
+			res.status(204).send();//204 request success but nothing to send
+		}
 
-	console.log('---------------------OLD TODOS:--------------------------------');
-	console.log(todos);
-	console.log('----------------------NEW TODOS:-------------------------------');
-	todos = _.without(todos, todoToDelete);
-	console.log(todos);
-	console.log('----------------------------------------------------------------');
+	}, function () {
+		res.status(500).send();
+	});
 
-	if (todoToDelete) {
-		res.json(todoToDelete);
-	} else {
-		res.status(404).json({"error":"no todo with matced id"});
-	}
+
 });
 
 
