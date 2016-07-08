@@ -25,50 +25,88 @@ app.get('/', function (req, res) {
 //GET all todos or filtered  /todos?completed=false&q=haircut
 app.get('/todos', function (req, res) {
 
-	var queryParams = req.query;//req.query give us string not boolean,
-	var filteredTodos = todos;
+	// var queryParams = req.query;//req.query give us string not boolean,
+	// var filteredTodos = todos;
 
-	//Work With q Query    /todos?completed=false
-	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-	 	 filteredTodos = _.where(todos, {completed: false});//where finds all matching items not just the first 
-	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-	     filteredTodos = _.where(todos, {completed: true});//where finds all matching items not just the first 
-	}
-
-
-	//Work With q Query    /todos?q=something
-	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-
-		console.log('--------------------------------------------------------------------');
-		console.log('Original filtered todos:');
-		console.log(filteredTodos);
-		console.log('--------------------------------------------------------------------');
+	// //Work With q Query    /todos?completed=false
+	// if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+	//  	 filteredTodos = _.where(todos, {completed: false});//where finds all matching items not just the first 
+	// } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+	//      filteredTodos = _.where(todos, {completed: true});//where finds all matching items not just the first 
+	// }
 
 
-		//Filter all todos and find if description containts queryParams.q
-		var filteredTodos = _.filter(filteredTodos, function(todo){ 
+	// //Work With 'q' Query    /todos?q=something
+	// if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 
-			// var arrayOfWords = todo.description.split(" ");//Make description as array of words
-			// return (arrayOfWords.indexOf(queryParams.q)) > -1;//if -1 queryParams.q doesn't exists  
+	// 	console.log('--------------------------------------------------------------------');
+	// 	console.log('Original filtered todos:');
+	// 	console.log(filteredTodos);
+	// 	console.log('--------------------------------------------------------------------');
 
-			//If 'todo.desctiption' contains  'queryParams.q'
-			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;//REFACTORING
 
-		});
+	// 	//Filter all todos and find if description containts queryParams.q
+	// 	var filteredTodos = _.filter(filteredTodos, function(todo){ 
+
+	// 		// var arrayOfWords = todo.description.split(" ");//Make description as array of words
+	// 		// return (arrayOfWords.indexOf(queryParams.q)) > -1;//if -1 queryParams.q doesn't exists  
+
+	// 		//If 'todo.desctiption' contains  'queryParams.q'
+	// 		return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;//REFACTORING
+
+	// 	});
 		
 
-		console.log('--------------------------------------------------------------------');
-		console.log('QUERY:');
-		console.log(queryParams.q);
+		// console.log('--------------------------------------------------------------------');
+		// console.log('QUERY:');
+		// console.log(queryParams.q);
 
-		console.log('FILTERED WITH QUERY:');
-		console.log(filteredTodos);
-		console.log('--------------------------------------------------------------------');
+		// console.log('FILTERED WITH QUERY:');
+		// console.log(filteredTodos);
+		// console.log('--------------------------------------------------------------------');
 
 
+	// }
+
+	// res.json(filteredTodos);//response as json no need to stringify
+
+
+
+////////////WITH DATABASE REFACTOR////////////////
+
+	var query = req.query;//req.query give us string not boolean,
+	var where = {};
+
+
+	//Work With q Query    /todos?completed=false
+	if (query.hasOwnProperty('completed') && query.completed === 'false') {
+		where.completed = false;
+	} else if (query.hasOwnProperty('completed') && query.completed === 'true') {
+		where.completed = true;
 	}
 
-	res.json(filteredTodos);//response as json no need to stringify
+
+	//Work With 'q' Query    /todos?q=something
+	if (query.hasOwnProperty('q') && query.q.length > 0) {
+		where.description = {
+			$like: '%' + query.q + '%'
+		};
+	}
+
+
+
+	//FETCH FROM SQLITE
+	db.todo.findAll({where: where}).then(function (sqTodos) {
+
+		res.json(sqTodos);//response as json no need to stringify
+
+	}, function (e) {
+		res.status(500).send();//500 status - server error
+	});
+
+
+
+
 });
 
 
