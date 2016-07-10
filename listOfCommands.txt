@@ -32,3 +32,7 @@ heroku pg:wait
 
 //postgress
 npm install pg@4.4.1 --save
+
+
+//bcrypt - one way encrypting algorythm
+npm install bcrypt --save

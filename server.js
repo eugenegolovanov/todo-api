@@ -323,8 +323,8 @@ app.put('/todos/:id', function (req, res) {
 		//findById
 		if (todo) {
 			return todo.update(attributes).then(function (todo) {
-					//Update by Id
-					res.json(todo.toJSON());
+				//Update by Id
+				res.json(todo.toJSON());
 			}, function (e) {
 				//Failed to Update by Id
 				res.status(400).json(e);
@@ -358,7 +358,7 @@ app.post('/users', function (req, res) {
 	var body = _.pick(req.body, 'email', 'password');
 
 	db.user.create(body).then(function (user) {
-		res.json(user.toJSON())
+		res.json(user.toPublicJSON()) //toPublicJSON - method from user.js, works in instanceMethods
 	}, function (e) {
 		res.status(400).json(e);
 	});
@@ -368,6 +368,7 @@ app.post('/users', function (req, res) {
 
 
 //Creating database before starting server
+// db.sequelize.sync({force:true}).then(function () {
 db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log('Listening port: ' + PORT);
