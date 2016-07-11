@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
+var bcrypt = require('bcrypt');
 
 var app = express();
 var PORT = process.env.PORT || 3000; // process.env.PORT - heroku port
@@ -349,10 +350,9 @@ app.put('/todos/:id', function (req, res) {
 
 
 
-//POST user
+//POST users
 app.post('/users', function (req, res) {
 
-////////////WITH DATABASE REFACTOR////////////////
 	//req.body - Body requested
 	//_.pick - filter body with 'email' and 'password' properties
 	var body = _.pick(req.body, 'email', 'password');
@@ -366,6 +366,38 @@ app.post('/users', function (req, res) {
 });
 
 
+
+//POST users/login
+app.post('/users/login', function (req, res) {
+
+	//req.body - Body requested
+	//_.pick - filter body with 'email' and 'password' properties
+	var body = _.pick(req.body, 'email', 'password');
+
+	//All functionality is in user.js file in  'authenticate' method
+	db.user.authenticate(body).then(function (user) {
+		res.json(user.toPublicJSON());//toPublicJSON - method from user.js, works in instanceMethods
+	}, function () {
+		res.status(401).send();
+	});
+		
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////
+/////////////////////DATABASE///////////////////////////
+////////////////////////////////////////////////////////
 
 //Creating database before starting server
 // db.sequelize.sync({force:true}).then(function () {
