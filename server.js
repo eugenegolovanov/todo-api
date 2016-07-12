@@ -376,17 +376,34 @@ app.post('/users/login', function (req, res) {
 
 	//All functionality is in user.js file in  'authenticate' method
 	db.user.authenticate(body).then(function (user) {
-		res.json(user.toPublicJSON());//toPublicJSON - method from user.js, works in instanceMethods
+		var token = user.generateToken('authentication');
+
+		console.log('--------------------------------------------------------------------');
+		console.log('TOKEN:');
+		console.log(token);
+		console.log('--------------------------------------------------------------------');
+
+		if (token) {
+			res.header('Auth', token).json(user.toPublicJSON());	
+		} else {
+			res.status(401).send();
+		}
+
+ 	 // res.header('Auth', user.generateToken('authentication')).json(user.toPublicJSON()).send();//toPublicJSON - method from user.js, works in instanceMethods
+
+
 	}, function () {
 		res.status(401).send();
 	});
-		
 
+	// 	//All functionality is in user.js file in  'authenticate' method
+	// db.user.authenticate(body).then(function (user) {
+	// 	res.json(user.toPublicJSON());//toPublicJSON - method from user.js, works in instanceMethods
+	// }, function () {
+	// 	res.status(401).send();
+	// });
 
 });
-
-
-
 
 
 
@@ -400,8 +417,8 @@ app.post('/users/login', function (req, res) {
 ////////////////////////////////////////////////////////
 
 //Creating database before starting server
-// db.sequelize.sync({force:true}).then(function () {
-db.sequelize.sync().then(function () {
+db.sequelize.sync({force:true}).then(function () {
+// db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log('Listening port: ' + PORT);
 	});

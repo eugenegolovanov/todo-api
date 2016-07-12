@@ -36,3 +36,10 @@ npm install pg@4.4.1 --save
 
 //bcrypt - one way encrypting algorythm
 npm install bcrypt --save
+
+
+//Token generator install
+npm install jsonwebtoken@5.0.5 --save
+
+//Crypto
+npm install crypto-js@3.1.5 --save
