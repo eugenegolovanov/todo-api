@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
 var bcrypt = require('bcrypt');
+var middleware = require('./middleware.js')(db); //db - passing db into middleware.js
 
 var app = express();
 var PORT = process.env.PORT || 3000; // process.env.PORT - heroku port
@@ -24,7 +25,7 @@ app.get('/', function (req, res) {
 
 
 //GET all todos or filtered  /todos?completed=false&q=haircut
-app.get('/todos', function (req, res) {
+app.get('/todos', middleware.requireAuthentication, function (req, res) {
 
 	// var queryParams = req.query;//req.query give us string not boolean,
 	// var filteredTodos = todos;
@@ -40,10 +41,10 @@ app.get('/todos', function (req, res) {
 	// //Work With 'q' Query    /todos?q=something
 	// if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
 
-	// 	console.log('--------------------------------------------------------------------');
-	// 	console.log('Original filtered todos:');
-	// 	console.log(filteredTodos);
-	// 	console.log('--------------------------------------------------------------------');
+		// console.log('--------------------------------------------------------------------');
+		// console.log('Original filtered todos:');
+		// console.log(filteredTodos);
+		// console.log('--------------------------------------------------------------------');
 
 
 	// 	//Filter all todos and find if description containts queryParams.q
@@ -77,7 +78,6 @@ app.get('/todos', function (req, res) {
 
 	var query = req.query;//req.query give us string not boolean,
 	var where = {};
-
 
 	//Work With q Query    /todos?completed=false
 	if (query.hasOwnProperty('completed') && query.completed === 'false') {
@@ -117,7 +117,7 @@ app.get('/todos', function (req, res) {
 
 
 //POST todo
-app.post('/todos', function (req, res) {
+app.post('/todos', middleware.requireAuthentication, function (req, res) {
 
 	// //req.body - Body requested
 	// //_.pick - filter body with 'description' and 'completed' properties
@@ -158,7 +158,7 @@ app.post('/todos', function (req, res) {
 
 
 //GET todos by id   /todos/:id
-app.get('/todos/:id', function (req, res) {
+app.get('/todos/:id', middleware.requireAuthentication, function (req, res) {
 
 	// var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
@@ -193,7 +193,7 @@ app.get('/todos/:id', function (req, res) {
 
 
 //DELETE todos by id   /todos/:id
-app.delete('/todos/:id' , function (req, res) {
+app.delete('/todos/:id' , middleware.requireAuthentication, function (req, res) {
 	// var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
 	// //get requested todo object (refactored with underscore library)
@@ -239,7 +239,7 @@ app.delete('/todos/:id' , function (req, res) {
 
 
 //PUT todos by id /todos/:id,  (update todos)
-app.put('/todos/:id', function (req, res) {
+app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
 	// //req.body - Body requested
 	// //_.pick - filter body with 'description' and 'completed' properties
 	// var body = _.pick(req.body, 'description', 'completed');
@@ -376,21 +376,14 @@ app.post('/users/login', function (req, res) {
 
 	//All functionality is in user.js file in  'authenticate' method
 	db.user.authenticate(body).then(function (user) {
-		var token = user.generateToken('authentication');
 
-		console.log('--------------------------------------------------------------------');
-		console.log('TOKEN:');
-		console.log(token);
-		console.log('--------------------------------------------------------------------');
+		var token = user.generateToken('authentication');
 
 		if (token) {
 			res.header('Auth', token).json(user.toPublicJSON());	
 		} else {
 			res.status(401).send();
 		}
-
- 	 // res.header('Auth', user.generateToken('authentication')).json(user.toPublicJSON()).send();//toPublicJSON - method from user.js, works in instanceMethods
-
 
 	}, function () {
 		res.status(401).send();
