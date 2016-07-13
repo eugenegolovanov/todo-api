@@ -18,7 +18,7 @@ app.get('/', function (req, res) {
 });
 
 
-// //GET all todos  /todos
+// //GET all todos  /todos 
 // app.get('/todos', function (req, res) {
 // 	res.json(todos);//response as json no need to stringify
 // });
@@ -79,6 +79,12 @@ app.get('/todos', middleware.requireAuthentication, function (req, res) {
 	var query = req.query;//req.query give us string not boolean,
 	var where = {};
 
+	//Filter todos with just current user 
+	where = {
+		 userId: req.user.get('id') // we access req.user that we assign in middleware
+	};
+
+
 	//Work With q Query    /todos?completed=false
 	if (query.hasOwnProperty('completed') && query.completed === 'false') {
 		where.completed = false;
@@ -86,11 +92,15 @@ app.get('/todos', middleware.requireAuthentication, function (req, res) {
 		where.completed = true;
 	}
 
+	// if (query.hasOwnProperty('userId') {
+	// }
+
+
 
 	//Work With 'q' Query    /todos?q=something
 	if (query.hasOwnProperty('q') && query.q.length > 0) {
 		where.description = {
-			$like: '%' + query.q + '%'
+			$like: '%' + query.q + '%',
 		};
 	}
 
@@ -147,7 +157,14 @@ app.post('/todos', middleware.requireAuthentication, function (req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
 
 	db.todo.create(body).then(function (todo) {
-		res.json(todo.toJSON())
+
+		req.user.addTodo(todo).then(function () {
+			//Add todo to that user by adding users 'id' into 'userId' 
+			return todo.reload();
+		}).then(function (todo) {
+			res.json(todo.toJSON());
+		});
+
 	}, function (e) {
 		res.status(400).json(e);
 	});
@@ -175,13 +192,23 @@ app.get('/todos/:id', middleware.requireAuthentication, function (req, res) {
 
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
+
+	// {where {userId: req.user.id}};
+
 		//FETCH FROM SQLITE
-		db.todo.findById(requestedId).then(function (todo) {
+		db.todo.findOne({
+			where: {
+				id: requestedId,
+		 		userId: req.user.get('id') // we access req.user that we assign in middleware
+			}
+		}).then(function (todo) {
+
 			if (!!todo) {
 				res.json(todo.toJSON());
 			} else {
 				res.status(404).send();
 			}
+
 		}, function (e) {
 			res.status(500).send();//500 status - server error
 		});
@@ -216,10 +243,12 @@ app.delete('/todos/:id' , middleware.requireAuthentication, function (req, res) 
 
 	var requestedId = parseInt(req.params.id, 10); //parseInt converts string to Int
 
+
 	//DELETE From SQLite
 	db.todo.destroy({
 		where: {
-			id: requestedId
+			id: requestedId,
+		 	userId: req.user.get('id') // we access req.user that we assign in middleware
 		}
 	}).then(function (rowSelected) {
 		if (rowSelected === 0) {
@@ -300,29 +329,15 @@ app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
 		attributes.description = body.description.trim();
 	} 
 
-
-	// db.todo.findById(requestedId).then(function (todo) {
-	// 	//findById
-	// 	if (todo) {
-	// 		return todo.update(attributes);
-	// 	} else {
-	// 		res.status(404).send();
-	// 	}
-	// }, function () {
-	// 		//failed findById
-	// 		res.status(500).send();
-	// }).then(function (todo) {
-	// 	//Update by Id
-	// 	res.json(todo.toJSON());
-	// }, function (e) {
-	// 	//Failed to Update by Id
-	// 	res.status(400).json(e);
-	// });
-
-
-	db.todo.findById(requestedId).then(function (todo) {
+	db.todo.findOne({
+		where: {
+			id: requestedId,
+		 	userId: req.user.get('id') // we access req.user that we assign in middleware
+		}
+	}).then(function (todo) {
 		//findById
 		if (todo) {
+
 			return todo.update(attributes).then(function (todo) {
 				//Update by Id
 				res.json(todo.toJSON());
@@ -330,6 +345,7 @@ app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
 				//Failed to Update by Id
 				res.status(400).json(e);
 			});
+
 		} else {
 			res.status(404).send();
 		}
@@ -410,8 +426,8 @@ app.post('/users/login', function (req, res) {
 ////////////////////////////////////////////////////////
 
 //Creating database before starting server
-db.sequelize.sync({force:true}).then(function () {
-// db.sequelize.sync().then(function () {
+// db.sequelize.sync({force:true}).then(function () {
+db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log('Listening port: ' + PORT);
 	});
