@@ -19,36 +19,36 @@
 8 silly mapToRegistry uri https://registry.npmjs.org/todo-api
 9 verbose request uri https://registry.npmjs.org/todo-api
 10 verbose request no auth needed
-11 info attempt registry request try #1 at 12:13:55 AM
-12 verbose request id 392db5468b48622d
+11 info attempt registry request try #1 at 12:17:16 AM
+12 verbose request id 2aede849a7ccdf6e
 13 http request GET https://registry.npmjs.org/todo-api
 14 http 404 https://registry.npmjs.org/todo-api
 15 verbose headers { 'content-type': 'application/json',
 15 verbose headers   'cache-control': 'max-age=0',
 15 verbose headers   'content-length': '2',
 15 verbose headers   'accept-ranges': 'bytes',
-15 verbose headers   date: 'Fri, 15 Jul 2016 07:13:55 GMT',
+15 verbose headers   date: 'Fri, 15 Jul 2016 07:17:16 GMT',
 15 verbose headers   via: '1.1 varnish',
 15 verbose headers   age: '0',
 15 verbose headers   connection: 'keep-alive',
-15 verbose headers   'x-served-by': 'cache-lax1427-LAX',
+15 verbose headers   'x-served-by': 'cache-lax1432-LAX',
 15 verbose headers   'x-cache': 'MISS',
 15 verbose headers   'x-cache-hits': '0',
-15 verbose headers   'x-timer': 'S1468566835.302930,VS0,VE329',
+15 verbose headers   'x-timer': 'S1468567036.821661,VS0,VE175',
 15 verbose headers   vary: 'Accept-Encoding' }
 16 silly get cb [ 404,
 16 silly get   { 'content-type': 'application/json',
 16 silly get     'cache-control': 'max-age=0',
 16 silly get     'content-length': '2',
 16 silly get     'accept-ranges': 'bytes',
-16 silly get     date: 'Fri, 15 Jul 2016 07:13:55 GMT',
+16 silly get     date: 'Fri, 15 Jul 2016 07:17:16 GMT',
 16 silly get     via: '1.1 varnish',
 16 silly get     age: '0',
 16 silly get     connection: 'keep-alive',
-16 silly get     'x-served-by': 'cache-lax1427-LAX',
+16 silly get     'x-served-by': 'cache-lax1432-LAX',
 16 silly get     'x-cache': 'MISS',
 16 silly get     'x-cache-hits': '0',
-16 silly get     'x-timer': 'S1468566835.302930,VS0,VE329',
+16 silly get     'x-timer': 'S1468567036.821661,VS0,VE175',
 16 silly get     vary: 'Accept-Encoding' } ]
 17 error owner ls Couldn't get owner data todo-api
 18 verbose stack Error: Registry returned 404 for GET on https://registry.npmjs.org/todo-api
