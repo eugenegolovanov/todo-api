@@ -454,8 +454,8 @@ app.delete('/users/login', middleware.requireAuthentication, function (req, res)
 ////////////////////////////////////////////////////////
 
 //Creating database before starting server
-db.sequelize.sync({force:true}).then(function () {
-// db.sequelize.sync().then(function () {
+// db.sequelize.sync({force:true}).then(function () {
+db.sequelize.sync().then(function () {
 	app.listen(PORT, function () {
 		console.log('Listening port: ' + PORT);
 	});
